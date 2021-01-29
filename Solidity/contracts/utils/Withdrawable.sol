@@ -1,8 +1,8 @@
-pragma solidity ^0.5.7;
+pragma solidity ^0.6.6;
 
-import "../token/ERC20/IERC20.sol";
-import "../token/ERC20/SafeERC20.sol";
-import "../access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
     Ensures that any contract that inherits from this contract is able to
@@ -10,7 +10,7 @@ import "../access/Ownable.sol";
  */
  
 contract Withdrawable is Ownable {
-    using SafeERC20 for IERC20;
+    using SafeERC20 for ERC20;
     address constant ETHER = address(0);
 
     event LogWithdraw(
@@ -30,8 +30,8 @@ contract Withdrawable is Ownable {
             assetBalance = self.balance;
             msg.sender.transfer(assetBalance);
         } else {
-            assetBalance = IERC20(_assetAddress).balanceOf(address(this));
-            IERC20(_assetAddress).safeTransfer(msg.sender, assetBalance);
+            assetBalance = ERC20(_assetAddress).balanceOf(address(this));
+            ERC20(_assetAddress).safeTransfer(msg.sender, assetBalance);
         }
         emit LogWithdraw(msg.sender, _assetAddress, assetBalance);
     }

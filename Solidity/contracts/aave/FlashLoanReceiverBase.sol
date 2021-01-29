@@ -1,13 +1,13 @@
-pragma solidity ^0.5.7;
+pragma solidity ^0.6.6;
 
-import "../math/SafeMath.sol";
-import "../token/ERC20/IERC20.sol";
-import "../token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./IFlashLoanReceiver.sol";
 import "./ILendingPoolAddressesProvider.sol";
 import "../utils/Withdrawable.sol";
 
-contract FlashLoanReceiverBase is IFlashLoanReceiver, Withdrawable {
+abstract contract FlashLoanReceiverBase is IFlashLoanReceiver, Withdrawable {
 
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -19,7 +19,7 @@ contract FlashLoanReceiverBase is IFlashLoanReceiver, Withdrawable {
         addressesProvider = ILendingPoolAddressesProvider(_addressProvider);
     }
 
-    function() payable external {}
+    receive() payable external {}
 
     function transferFundsBackToPoolInternal(address _reserve, uint256 _amount) internal {
         address payable core = addressesProvider.getLendingPoolCore();
@@ -28,7 +28,7 @@ contract FlashLoanReceiverBase is IFlashLoanReceiver, Withdrawable {
 
     function transferInternal(address payable _destination, address _reserve, uint256 _amount) internal {
         if(_reserve == ethAddress) {
-            (bool success, ) = _destination.call.value(_amount)("");
+            (bool success, ) = _destination.call{value: _amount}("");
             require(success == true, "Couldn't transfer ETH");
             return;
         }

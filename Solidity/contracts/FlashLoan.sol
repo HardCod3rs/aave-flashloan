@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.6;
 pragma experimental ABIEncoderV2;
 
 // AAVE
@@ -7,8 +7,8 @@ import "./aave/ILendingPoolAddressesProvider.sol";
 import "./aave/ILendingPool.sol";
 
 // ERC20
-import "./token/ERC20/IERC20.sol";
-import "./access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Utils
 import "./utils/DirectCall.sol";
@@ -47,7 +47,7 @@ contract FlashLoan is DirectCall, Ownable, FlashLoanReceiverBase {
         uint256 _amount,
         uint256 _fee,
         bytes calldata _params
-    ) external {
+    ) external override {
         //require(msg.sender == SoloAddress, "Unauthorized Access!");
         require(_amount <= getBalanceInternal(address(this), _reserve), "Invalid balance, was the flashLoan successful?");
 
@@ -85,8 +85,6 @@ contract FlashLoan is DirectCall, Ownable, FlashLoanReceiverBase {
 );
     }
 
-    function() external payable {}
-
     function letsdoit(
         address _LoanToken,
         uint256 _LoanAmount,
@@ -96,7 +94,7 @@ contract FlashLoan is DirectCall, Ownable, FlashLoanReceiverBase {
     }
 
     function changeOwner(address newOwner) external onlyOwner {
-        _transferOwnership(newOwner);
+        transferOwnership(newOwner);
     }
 
     function withdraweth(uint256 _Amount) external onlyOwner {
